@@ -1,3 +1,4 @@
+import moment from 'moment';
 import * as yup from 'yup';
 
 export const studentValidatorSchema = yup.object({
@@ -12,10 +13,30 @@ export const studentValidatorSchema = yup.object({
     .min(18, 'You must be of legal age')
     .required(),
   dateOfBirth: yup.date()
-    // .when(['age', (age, schema) =>  {
-    //   return schema.date
-    // }])
+    .test({
+      name: 'equals',
+      exclusive: false,
+      params: {},
+      message: 'the date does not match the age',
+      test: function(val) {
+        const diffYears = moment().diff(moment(val), 'years');
+        return diffYears === this.parent.age;
+      }
+    })
     .required(),
   dateOfInscription: yup.date().required(),
-  cost: yup.number().required()
+  cost: yup.number()
+    .test({
+      name: 'equals',
+      exclusive: false,
+      params: {},
+      message: 'the date does not match the cost',
+      test: function(val) {
+        const diffYears = moment().diff(moment(this.parent.dateOfInscription), 'years');
+        console.log('val', val)
+        console.log('diffYears', diffYears);
+        return diffYears * 100 === +val;
+      }
+    })
+    .required()
 })
